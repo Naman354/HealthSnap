@@ -10,7 +10,7 @@ const app=express();
 
 app.use(express.json());
 
-app.use(".api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
     res.send("Server is Live"); 
@@ -18,6 +18,6 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5500;
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

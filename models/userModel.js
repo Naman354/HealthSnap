@@ -25,7 +25,7 @@ userSchema.pre("save", async function(next){
     next();
 });
 
-export const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@$%&*?])[A-Za-z\d!@$%&*?]{8,1}$/;
+export const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@$%&*?])[A-Za-z\d!@$%&*?]{8,}$/;
 
 export function validatePassword(password) {
     return passwordRegex.test(password);
