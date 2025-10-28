@@ -2,59 +2,31 @@ import Symptom from "../models/profileModel.js";
 
 export const addSymptomEntry = async (req, res) => {
   try {
-    const {
-      name,
-      gender,
-      DOB,
-      relationship,
-      height,
-      weight,
-      country,
-      diet_type,
-      sleep_quality,
-      hydration_level,
-      stress_level,
-      smoking,
-      alcohol_intake,
-      symptoms,
-      symptom_severity,
-      details,
-      steps_walked,
-      sleep_hours,
-      water_intake,
-      BMI,
-      heart_rate,
-      calorie_intake,
-    } = req.body;
+    const data = {...req.body};
 
-    const newEntry = new Symptom({
-      name,
-      gender,
-      DOB,
-      relationship,
-      height,
-      weight,
-      country,
-      diet_type,
-      sleep_quality,
-      hydration_level,
-      stress_level,
-      smoking,
-      alcohol_intake,
-      symptoms,
-      symptom_severity,
-      details,
-      steps_walked,
-      sleep_hours,
-      water_intake,
-      BMI,
-      heart_rate,
-      calorie_intake,
-    });
+    if (!data.name || !data.gender || !data.DOB || !data.height || !data.weight || !data.country) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
 
-    await newEntry.save();
-    res.status(201).json({ success: true, data: newEntry });
+    if (data.DOB) data.DOB = new Date(data.DOB);
+    if (!Array.isArray(data.symptoms)) data.symptoms = [];
+
+    const newEntry = new Symptom(data);
+    const savedEntry = await newEntry.save();
+    res.status(201).json({ success: true, data: savedEntry });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const errors = Object.keys(error.errors).map((field) => ({
+        field,
+        message: error.errors[field].message,
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors,
+      });
+    }
     res.status(400).json({ success: false, message: error.message });
   }
 };

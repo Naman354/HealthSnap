@@ -2,15 +2,21 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import morgan from "morgan";
+import helmet from "helmet";
+import profileRoutes from "./routes/profileRoutes.js";
 
 dotenv.config();
 connectDB();
 
 const app=express();
 
+app.use(helmet());
 app.use(express.json());
-
+app.use(morgan("dev")); 
+app.disable("x-powered-by");
 app.use("/api/auth", authRoutes);
+app.use("/api/", profileRoutes);
 
 app.get("/", (req, res) => {
     res.send("Server is Live"); 

@@ -50,7 +50,7 @@ const symptomSchema = new mongoose.Schema({
     },
     hydration_level:{
         type:String,
-        required:truee,
+        required:true,
         num:["Low","Normal","High"],
     },
     stress_level:{
@@ -70,7 +70,7 @@ const symptomSchema = new mongoose.Schema({
     },
     symptoms:{
         type:[String],
-        reuired:true,
+        required:true,
         enum: ["Headache", "Muscle pain", "Dizziness", "Fatigue"],
         default:[],
     },
