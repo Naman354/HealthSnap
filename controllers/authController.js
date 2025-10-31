@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { sendEmail } from "../utils/sendEmail.js";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import { generateRandomTokenHex } from "../utils/token.js";
 
 export const generateToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: "1h"});
@@ -18,14 +19,51 @@ export const register = async (req, res) => {
         const userExists =  await User.findOne({email});
         if(userExists) return res.status(400).json({message: "User Already Exists"});
 
-        const user = await User.create({fullname, email, password});
+        const user = await User.create({fullname, email, password, isVerified: false});
+
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+        const verificationTokenHash = crypto
+          .createHash("sha256")
+          .update(verificationToken)
+          .digest("hex");
+
+        user.verificationToken = verificationTokenHash;
+        user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hrs
+        await user.save({ validateBeforeSave: false });
+
+         user.verificationToken = verificationTokenHash;
+          user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hrs
+          await user.save({ validateBeforeSave: false });
+
+          const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+
+          const subject = "Verify your HealthSnap account";
+          const html = `
+            <p>Hello ${user.fullname},</p>
+            <p>Welcome to <b>HealthSnap</b>! Please verify your email by clicking below:</p>
+            <a href="${verifyUrl}" target="_blank" style="color: blue;">Verify Email</a>
+            <p>This link will expire in 24 hours.</p>
+          `;
+
+          await sendEmail({
+            to: user.email,
+            subject,
+            html,
+          }); 
+
         res.status(201).json({
-            _id:user.id,
-            fullname:user.fullname,
-            email: user.email,
-        });
+        message:
+          "Registration successful! Please check your email (inbox or spams) to verify your account.",
+        user: {
+          _id: user._id,
+          fullname: user.fullname,
+          email: user.email,
+        },
+      });
+
     } catch (err) {
-        return res.status(500).json({message: err.message});
+         console.error("Register error:", err);
+         return res.status(500).json({message: err.message});
     }
 };
 
@@ -33,6 +71,9 @@ export const login = async (req, res) => {
     const {email, password} = req.body;
     try{
         const user = await User.findOne({email});
+        if (!user.isVerified) {
+        return res.status(403).json({ message: "Please verify your email before logging in." });
+        }
         if(user && await user.matchPassword(password)) {
             res.json({
                 _id:user.id,
@@ -126,5 +167,31 @@ export const resetPassword = async (req, res) => {
   } catch (err) {
     console.error("❌ Reset password error:", err);
     res.status(500).json({ message: "Password reset failed" });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      verificationToken: hashedToken,
+      verificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user)
+      return res.status(400).json({ message: "Invalid or expired verification token" });
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationExpires = undefined;
+    await user.save();
+
+    res.json({ message: "✅ Email verified successfully! You can now log in." });
+  } catch (err) {
+    console.error("❌ Email verification error:", err);
+    res.status(500).json({ message: "Email verification failed" });
   }
 };
