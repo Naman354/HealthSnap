@@ -35,7 +35,7 @@ export const register = async (req, res) => {
           user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hrs
           await user.save({ validateBeforeSave: false });
 
-          const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+          const verifyUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email/${verificationToken}`;
 
           const subject = "Verify your HealthSnap account";
           const html = `

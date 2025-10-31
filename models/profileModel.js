@@ -71,7 +71,9 @@ const symptomSchema = new mongoose.Schema({
     symptoms:{
         type:[String],
         required:true,
-        enum: ["Headache", "Muscle pain", "Dizziness", "Fatigue"],
+        enum: ["fever", "cough", "sore_throat", "runny_nose", "breath_shortness", "fatigue",
+    "headache", "body_pain", "appetite_loss", "nausea", "stomach_pain",
+    "sleep_quality", "mood_swings", "anxiety", "irritability", "concentration_loss"],
         default:[],
     },
     symptom_severity:{
