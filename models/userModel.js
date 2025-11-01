@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
     verificationExpires: { type: Date },
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date },
+    prediction: { type: String },
+    confidence: { type: Number },
+
 },
 {timestamps:true});
 
