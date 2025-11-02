@@ -1,4 +1,5 @@
 import User, { validatePassword } from "../models/userModel.js";
+import Symptom from "../models/profileModel.js";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../utils/sendEmail.js";
 import crypto from "crypto";
@@ -195,3 +196,25 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ message: "Email verification failed" });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await User.findByIdAndDelete(userId);
+
+    await Symptom.deleteMany({ user: userId });
+
+    res.status(200).json({
+      success: true,
+      message: "User account deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting account",
+      error: error.message,
+    });
+  }
+};
+

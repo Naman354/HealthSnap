@@ -24,7 +24,10 @@ export const addSymptomEntry = async (req, res) => {
     if (data.DOB) data.DOB = new Date(data.DOB);
     if (!Array.isArray(data.symptoms)) data.symptoms = [];
 
-    const newEntry = new Symptom(data);
+    const newEntry = new Symptom({
+      ...data,
+      user: req.user._id
+      });
     const savedEntry = await newEntry.save();
 
     const mlInput = prepareMLData(data);
