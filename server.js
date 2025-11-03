@@ -5,7 +5,8 @@ import authRoutes from "./routes/authRoutes.js";
 import morgan from "morgan";
 import helmet from "helmet";
 import profileRoutes from "./routes/profileRoutes.js";
-import mlRoutes from "./routes/mlRoutes.js";
+import mlRoutes from "./routes/mlRoutes.js";    
+import reminderRoutes from "./routes/reminderRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -21,6 +22,7 @@ app.disable("x-powered-by");
 app.use("/api/auth", authRoutes);
 app.use("/api/", profileRoutes);
 app.use("/api/ml", mlRoutes);
+app.use("/api/reminders", reminderRoutes);
 
 
 app.get("/", (req, res) => {
