@@ -72,9 +72,9 @@ export const login = async (req, res) => {
     const {email, password} = req.body;
     try{
         const user = await User.findOne({email});
-        if (!user.isVerified) {
-        return res.status(403).json({ message: "Please verify your email before logging in." });
-        }
+        // if (!user.isVerified) {
+        // return res.status(403).json({ message: "Please verify your email before logging in." });
+        // }
         if(user && await user.matchPassword(password)) {
             res.json({
                 _id:user.id,
