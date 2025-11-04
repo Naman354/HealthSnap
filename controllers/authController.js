@@ -91,7 +91,7 @@ export const login = async (req, res) => {
 };
 
 export const forgotPassword = async (req, res) => {
-  console.log("📩 Forgot password route hit");
+  console.log("Forgot password route hit");
   let user;
 
   try {
@@ -127,7 +127,7 @@ export const forgotPassword = async (req, res) => {
     res.json({ message: "Password reset email sent successfully" });
 
   } catch (err) {
-    console.error("❌ Forgot password error:", err);
+    console.error("Forgot password error:", err);
     if (user) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
@@ -142,17 +142,17 @@ export const resetPassword = async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
 
-    console.log("🔹 Raw token from URL:", token);
+    console.log("Raw token from URL:", token);
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-    console.log("🔹 Hashed token (for DB lookup):", hashedToken);
+    console.log("Hashed token (for DB lookup):", hashedToken);
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
 
-    console.log("🔹 Found user:", user ? user.email : "❌ None");
+    console.log("Found user:", user ? user.email : "None");
 
     if (!user)
       return res.status(400).json({ message: "Invalid or expired password reset token" });
@@ -163,10 +163,10 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpire = undefined;
     await user.save();
 
-    console.log("✅ Password reset successfully for:", user.email);
+    console.log("Password reset successfully for:", user.email);
     res.json({ message: "Password has been reset successfully" });
   } catch (err) {
-    console.error("❌ Reset password error:", err);
+    console.error("Reset password error:", err);
     res.status(500).json({ message: "Password reset failed" });
   }
 };
@@ -190,9 +190,9 @@ export const verifyEmail = async (req, res) => {
     user.verificationExpires = undefined;
     await user.save();
 
-    res.json({ message: "✅ Email verified successfully! You can now log in." });
+    res.json({ message: "Email verified successfully! You can now log in." });
   } catch (err) {
-    console.error("❌ Email verification error:", err);
+    console.error("Email verification error:", err);
     res.status(500).json({ message: "Email verification failed" });
   }
 };

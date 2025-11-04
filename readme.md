@@ -30,6 +30,9 @@ It enables users to log daily inputs such as sleep, hydration, stress levels, an
 
 ---
 
+
+## 📮Postman API Documentation : [https://documenter.getpostman.com/view/48451096/2sB3WmUi98#e8c85166-b9cc-441e-8e5b-37eb522bc2e1]
+
 ## 🧩 Tech Stack
 
 | Layer | Technology |

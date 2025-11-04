@@ -115,6 +115,11 @@ const symptomSchema = new mongoose.Schema({
         type:Number,
         min:0,
     },
+      prediction: { type: String },
+  confidence: { type: Number },
+  prediction_2: { type: String },
+  confidence_2: { type: Number },
+
 },{ timestamps: true });
 
 export default mongoose.model("Symptom", symptomSchema);

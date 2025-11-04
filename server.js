@@ -12,8 +12,7 @@ dotenv.config();
 connectDB();
 
 const app=express();
-console.log("Loaded SendGrid Key:", process.env.SENDGRID_API_KEY ? "✅ Found" : "❌ Missing");
-console.log("🔑 API Key Prefix:", process.env.SENDGRID_API_KEY?.slice(0, 10));
+console.log("Loaded SendGrid Key:", process.env.SENDGRID_API_KEY ? "Found" : "Missing");
 
 app.use(helmet());
 app.use(express.json());
