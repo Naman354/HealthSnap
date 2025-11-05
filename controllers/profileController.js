@@ -1,5 +1,6 @@
 import Symptom from "../models/profileModel.js";
 import axios from "axios";
+import validator from "validator";
 
 const prepareMLData1 = (userSymptomData) => {
   const { symptoms, symptom_severity } = userSymptomData;
@@ -55,12 +56,66 @@ export const addSymptomEntry = async (req, res) => {
   try {
     const data = { ...req.body };
 
+    if (!req.user || !req.user._id) {
+    return res.status(401).json({ success: false, message: "Unauthorized user" });
+    }
     if (!data.name || !data.gender || !data.DOB || !data.height || !data.weight || !data.country) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
+    data.name = data.name.trim();
+    data.country = data.country.trim();
+    if (data.details) data.details = validator.escape(data.details.trim());
+    if (data.relationship) data.relationship = data.relationship.trim();
+    
+    if (data.height < 0 || data.height > 300)
+    return res.status(400).json({ success: false, message: "Invalid height value" });
+
+    if (data.weight < 0 || data.weight > 200)
+    return res.status(400).json({ success: false, message: "Invalid weight value" });
+
+    if (data.sleep_hours && (data.sleep_hours < 0 || data.sleep_hours >  24))
+    return res.status(400).json({ success: false, message: "Invalid sleep hours" });
+    if (isNaN(new Date(data.DOB).getTime())) {
+    return res.status(400).json({ success: false, message: "Invalid date format for DOB" });
+    }
 
     if (data.DOB) data.DOB = new Date(data.DOB);
-    if (!Array.isArray(data.symptoms)) data.symptoms = [];
+    if (new Date(data.DOB) > new Date()) {
+    return res.status(400).json({ success: false, message: "DOB cannot be in the future" });
+    }
+
+    for (const key of ["height", "weight", "sleep_hours", "water_intake", "steps_walked"]) {
+    if (data[key] === undefined || data[key] === null) data[key] = 0;
+    }
+
+  if (!Array.isArray(data.symptoms)) data.symptoms = [];
+
+    const validEnums = {
+  gender: ["Male", "Female", "Other"],
+  diet_type: ["Vegan", "Vegetarian", "Non Vegetarian"],
+  sleep_quality: ["Low", "Normal", "High"],
+  hydration_level: ["Low", "Normal", "High"],
+  stress_level: ["Low", "Normal", "High"],
+  smoking: ["Yes", "No"],
+  alcohol_intake: ["Occasionally", "Regularly", "Never"],
+  symptom_severity: ["none", "mild", "moderate", "severe"],
+};
+    const allowedSymptoms = [
+  "fever", "cough", "sore_throat", "runny_nose", "breath_shortness", "fatigue",
+  "headache", "body_pain", "appetite_loss", "nausea", "stomach_pain",
+  "sleep_quality", "mood_swings", "anxiety", "irritability", "concentration_loss"
+];
+
+  if (data.symptoms.some(s => !allowedSymptoms.includes(s))) {
+    return res.status(400).json({ success: false, message: "Invalid symptom detected" });
+    }
+
+for (const [key, allowed] of Object.entries(validEnums)) {
+  if (data[key] && !allowed.includes(data[key])) {
+    return res.status(400).json({ success: false, message: `Invalid value for ${key}` });
+  }
+}
+
 
     const newEntry = new Symptom({
       ...data,
