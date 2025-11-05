@@ -7,6 +7,13 @@ import helmet from "helmet";
 import profileRoutes from "./routes/profileRoutes.js";
 import mlRoutes from "./routes/mlRoutes.js";    
 import reminderRoutes from "./routes/reminderRoutes.js";
+import cors from "cors";
+
+const allowedOrigins = [
+  "http://localhost:5173",        
+  "https://localhost:5173",       
+  "https://healthsnap-68ry.onrender.com"    
+];
 
 dotenv.config();
 connectDB();
@@ -18,10 +25,25 @@ app.use(helmet());
 app.use(express.json());
 app.use(morgan("dev")); 
 app.disable("x-powered-by");
+  app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/", profileRoutes);
 app.use("/api/ml", mlRoutes);
 app.use("/api/reminders", reminderRoutes);
+
 
 
 app.get("/", (req, res) => {
