@@ -11,7 +11,8 @@ import cors from "cors";
 
 const allowedOrigins = [
   "http://localhost:5173",        
-  "https://localhost:5173",       
+  "https://localhost:5173",
+  "https://healthsnap-zndk.onrender.com",       
   "https://healthsnap-68ry.onrender.com"    
 ];
 
